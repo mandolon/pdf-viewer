@@ -61,10 +61,10 @@ export const PDFViewer = () => {
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
 
-  const zoomIn = () => setScale(prev => Math.min(prev * 1.2, 3.0));
-  const zoomOut = () => setScale(prev => Math.max(prev / 1.2, 0.3));
+  const zoomIn = () => setScale(prev => Math.min(prev * 1.25, 5.0));
+  const zoomOut = () => setScale(prev => Math.max(prev / 1.25, 0.25));
   const resetZoom = () => setScale(1.0);
-  const fitToWidth = () => setScale(1.2);
+  const fitToWidth = () => setScale(1.5);
 
   return (
     <div className="flex flex-col h-full bg-gray-800">

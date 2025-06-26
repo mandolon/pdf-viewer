@@ -22,9 +22,17 @@ export const DocumentCanvas = ({ pdfDocument, currentPage, scale }: DocumentCanv
         
         if (!context) return;
 
+        // Clear the canvas before rendering
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
         const viewport = page.getViewport({ scale });
+        
+        // Set canvas size based on the viewport
         canvas.height = viewport.height;
         canvas.width = viewport.width;
+
+        // Clear again after resize to ensure clean render
+        context.clearRect(0, 0, canvas.width, canvas.height);
 
         const renderContext = {
           canvasContext: context,
@@ -41,12 +49,16 @@ export const DocumentCanvas = ({ pdfDocument, currentPage, scale }: DocumentCanv
   }, [pdfDocument, currentPage, scale]);
 
   return (
-    <div className="p-4">
-      <div className="bg-white shadow-2xl rounded-sm overflow-hidden">
+    <div className="p-4 flex justify-center">
+      <div className="bg-white shadow-2xl rounded-sm overflow-hidden inline-block">
         <canvas
           ref={canvasRef}
-          className="block max-w-full h-auto"
-          style={{ maxHeight: 'calc(100vh - 120px)' }}
+          className="block"
+          style={{ 
+            maxWidth: '100%',
+            height: 'auto',
+            display: 'block'
+          }}
         />
       </div>
     </div>
