@@ -18,6 +18,7 @@ export const PDFViewer = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [scale, setScale] = useState(1.0);
+  const [autoFit, setAutoFit] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -30,6 +31,16 @@ export const PDFViewer = () => {
       setPdfDocument(pdf);
       setTotalPages(pdf.numPages);
       setCurrentPage(1);
+      
+      // Calculate auto-fit scale for the first page
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 1.0 });
+      const containerHeight = window.innerHeight - 120; // Account for toolbar and padding
+      const autoScale = Math.min(containerHeight / viewport.height, 2.0); // Max 2x zoom
+      
+      setScale(autoScale);
+      setAutoFit(true);
+      
       toast.success(`PDF loaded successfully! ${pdf.numPages} pages`);
     } catch (error) {
       console.error("Error loading PDF:", error);
@@ -52,17 +63,31 @@ export const PDFViewer = () => {
     fileInputRef.current?.click();
   };
 
-  const goToPage = (pageNum: number) => {
+  const goToPage = useCallback(async (pageNum: number) => {
     if (pageNum >= 1 && pageNum <= totalPages) {
       setCurrentPage(pageNum);
+      
+      // If auto-fit is enabled, recalculate scale for the new page
+      if (autoFit && pdfDocument) {
+        try {
+          const page = await pdfDocument.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 1.0 });
+          const containerHeight = window.innerHeight - 120;
+          const autoScale = Math.min(containerHeight / viewport.height, 2.0);
+          setScale(autoScale);
+        } catch (error) {
+          console.error("Error recalculating auto-fit scale:", error);
+        }
+      }
     }
-  };
+  }, [totalPages, autoFit, pdfDocument]);
 
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
 
   // Enhanced zoom functions with better scaling steps
   const zoomIn = useCallback(() => {
+    setAutoFit(false);
     setScale(prev => {
       const newScale = prev * 1.25;
       return Math.min(newScale, 5.0);
@@ -70,18 +95,33 @@ export const PDFViewer = () => {
   }, []);
 
   const zoomOut = useCallback(() => {
+    setAutoFit(false);
     setScale(prev => {
       const newScale = prev / 1.25;
       return Math.max(newScale, 0.25);
     });
   }, []);
 
-  const resetZoom = useCallback(() => setScale(1.0), []);
-  
-  const fitToWidth = useCallback(() => {
-    // This would ideally calculate based on container width, for now use a reasonable default
-    setScale(1.2);
+  const resetZoom = useCallback(() => {
+    setAutoFit(false);
+    setScale(1.0);
   }, []);
+  
+  const fitToHeight = useCallback(async () => {
+    if (!pdfDocument) return;
+    
+    try {
+      const page = await pdfDocument.getPage(currentPage);
+      const viewport = page.getViewport({ scale: 1.0 });
+      const containerHeight = window.innerHeight - 120; // Account for toolbar and padding
+      const autoScale = Math.min(containerHeight / viewport.height, 2.0); // Max 2x zoom
+      
+      setScale(autoScale);
+      setAutoFit(true);
+    } catch (error) {
+      console.error("Error calculating fit to height:", error);
+    }
+  }, [pdfDocument, currentPage]);
 
   // Keyboard navigation support
   useEffect(() => {
@@ -128,7 +168,27 @@ export const PDFViewer = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [pdfDocument, totalPages, zoomIn, zoomOut, resetZoom]);
+  }, [pdfDocument, totalPages, goToPage, zoomIn, zoomOut, resetZoom]);
+
+  // Handle window resize for auto-fit
+  useEffect(() => {
+    const handleResize = async () => {
+      if (autoFit && pdfDocument) {
+        try {
+          const page = await pdfDocument.getPage(currentPage);
+          const viewport = page.getViewport({ scale: 1.0 });
+          const containerHeight = window.innerHeight - 120;
+          const autoScale = Math.min(containerHeight / viewport.height, 2.0);
+          setScale(autoScale);
+        } catch (error) {
+          console.error("Error recalculating auto-fit on resize:", error);
+        }
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [autoFit, pdfDocument, currentPage]);
 
   return (
     <div className="flex flex-col h-full bg-gray-800">
@@ -151,7 +211,7 @@ export const PDFViewer = () => {
         onZoomIn={zoomIn}
         onZoomOut={zoomOut}
         onResetZoom={resetZoom}
-        onFitToWidth={fitToWidth}
+        onFitToWidth={fitToHeight}
         onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
         sidebarOpen={sidebarOpen}
         loading={loading}

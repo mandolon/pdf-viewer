@@ -150,7 +150,7 @@ export const Toolbar = ({
           <button
             onClick={onFitToWidth}
             className="p-2 rounded hover:bg-gray-600 transition-colors"
-            title="Fit to width"
+            title="Fit to height"
           >
             <Maximize2 size={18} />
           </button>
