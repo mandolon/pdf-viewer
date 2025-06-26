@@ -102,7 +102,7 @@ export const PDFViewer = () => {
           />
         )}
         
-        <div className="flex-1 bg-gray-600 flex items-center justify-center overflow-auto">
+        <div className="flex-1 bg-gray-600 overflow-auto">
           {pdfDocument ? (
             <DocumentCanvas
               pdfDocument={pdfDocument}

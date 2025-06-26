@@ -49,14 +49,12 @@ export const DocumentCanvas = ({ pdfDocument, currentPage, scale }: DocumentCanv
   }, [pdfDocument, currentPage, scale]);
 
   return (
-    <div className="p-4 flex justify-center">
-      <div className="bg-white shadow-2xl rounded-sm overflow-hidden inline-block">
+    <div className="p-4 min-h-full flex justify-center items-start">
+      <div className="bg-white shadow-2xl rounded-sm overflow-visible">
         <canvas
           ref={canvasRef}
           className="block"
           style={{ 
-            maxWidth: '100%',
-            height: 'auto',
             display: 'block'
           }}
         />
