@@ -14,19 +14,30 @@
   line-height: 1.0;
   text-align: initial;
   pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
 }
 
 .textLayer > div {
-  color: transparent;
+  color: transparent !important;
   position: absolute;
   white-space: pre;
   cursor: text;
   transform-origin: 0% 0%;
   user-select: text;
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
   pointer-events: auto;
   line-height: 1;
   font-feature-settings: 'liga' 0;
   text-rendering: optimizeSpeed;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 
 .textLayer > div::selection {

@@ -84,59 +84,52 @@ export const DocumentCanvas = ({ pdfDocument, currentPage, scale }: DocumentCanv
       
       const viewport = page.getViewport({ scale: currentScale });
       
-      // Set text layer dimensions
+      // Set text layer dimensions to match canvas
       textLayer.style.width = `${viewport.width}px`;
       textLayer.style.height = `${viewport.height}px`;
       
       try {
         const textContent = await page.getTextContent();
         
-        // Use PDF.js text layer builder approach
-        textContent.items.forEach((textItem: any, index: number) => {
+        // Simplified text layer approach for better compatibility
+        textContent.items.forEach((textItem: any) => {
           if (textItem.str && textItem.str.trim()) {
             const textDiv = document.createElement('div');
             const transform = textItem.transform;
             
-            // More accurate text positioning based on PDF.js source
-            const tx = transform[4];
-            const ty = transform[5];
-            const rotation = Math.atan2(transform[1], transform[0]);
+            // Calculate position and scale
+            const x = transform[4];
+            const y = transform[5];
+            const scaleX = transform[0];
+            const scaleY = transform[3];
             
-            let scaleX = Math.sqrt(transform[0] * transform[0] + transform[1] * transform[1]);
-            let scaleY = Math.sqrt(transform[2] * transform[2] + transform[3] * transform[3]);
-            
-            if (transform[0] < 0) scaleX = -scaleX;
-            if (transform[3] < 0) scaleY = -scaleY;
-            
+            // Calculate font size from the transformation matrix
             const fontSize = Math.abs(scaleY);
             
+            // Position the text div
             textDiv.style.position = 'absolute';
-            textDiv.style.left = `${tx}px`;
-            textDiv.style.top = `${ty - fontSize}px`;
+            textDiv.style.left = `${x}px`;
+            textDiv.style.top = `${viewport.height - y - fontSize}px`;
             textDiv.style.fontSize = `${fontSize}px`;
             textDiv.style.fontFamily = textItem.fontName || 'sans-serif';
-            textDiv.style.transformOrigin = '0% 0%';
             
-            // Apply rotation and scaling
-            let transform_str = `rotate(${rotation}rad)`;
+            // Scale horizontally if needed
             if (Math.abs(scaleX) !== fontSize) {
-              transform_str += ` scaleX(${scaleX / fontSize})`;
+              textDiv.style.transform = `scaleX(${scaleX / fontSize})`;
+              textDiv.style.transformOrigin = '0% 0%';
             }
-            textDiv.style.transform = transform_str;
             
-            // Text layer styling for selection
+            // Essential styles for text selection
             textDiv.style.color = 'transparent';
-            textDiv.style.pointerEvents = 'all';
             textDiv.style.userSelect = 'text';
+            textDiv.style.pointerEvents = 'auto';
             textDiv.style.cursor = 'text';
             textDiv.style.whiteSpace = 'pre';
             textDiv.style.lineHeight = '1';
-            textDiv.style.overflow = 'visible';
-            
-            // Handle text direction for RTL languages
-            if (textItem.dir) {
-              textDiv.dir = textItem.dir;
-            }
+            textDiv.style.margin = '0';
+            textDiv.style.padding = '0';
+            textDiv.style.border = 'none';
+            textDiv.style.background = 'transparent';
             
             textDiv.textContent = textItem.str;
             textLayer.appendChild(textDiv);
@@ -180,9 +173,7 @@ export const DocumentCanvas = ({ pdfDocument, currentPage, scale }: DocumentCanv
           className="textLayer"
           style={{
             userSelect: 'text',
-            pointerEvents: 'auto',
-            opacity: isRendering ? 0 : 1,
-            transition: 'opacity 0.2s ease-in-out'
+            pointerEvents: 'auto'
           }}
         />
       </div>
