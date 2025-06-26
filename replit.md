@@ -43,8 +43,9 @@ This is a full-stack React application that provides a comprehensive PDF viewing
 
 ### Storage Layer
 - Abstract storage interface (`IStorage`) for data operations
-- In-memory storage implementation (`MemStorage`) for development
-- Prepared for PostgreSQL integration with Drizzle ORM
+- PostgreSQL database with Drizzle ORM for production
+- Database schema includes users, documents, and viewing sessions tables
+- Full CRUD operations for document management and viewing state persistence
 
 ## Data Flow
 
@@ -104,3 +105,6 @@ Preferred communication style: Simple, everyday language.
 
 Changelog:
 - June 26, 2025. Initial setup
+- June 26, 2025. Added PostgreSQL database with Drizzle ORM
+- June 26, 2025. Fixed PDF.js zoom functionality with stable version 4.8.69
+- June 26, 2025. Migrated from Replit Agent to Replit environment successfully
