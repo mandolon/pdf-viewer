@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Toolbar } from "./Toolbar";
 import { DocumentCanvas } from "./DocumentCanvas";
 import { Sidebar } from "./Sidebar";
@@ -61,10 +61,74 @@ export const PDFViewer = () => {
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
 
-  const zoomIn = () => setScale(prev => Math.min(prev * 1.25, 5.0));
-  const zoomOut = () => setScale(prev => Math.max(prev / 1.25, 0.25));
-  const resetZoom = () => setScale(1.0);
-  const fitToWidth = () => setScale(1.5);
+  // Enhanced zoom functions with better scaling steps
+  const zoomIn = useCallback(() => {
+    setScale(prev => {
+      const newScale = prev * 1.25;
+      return Math.min(newScale, 5.0);
+    });
+  }, []);
+
+  const zoomOut = useCallback(() => {
+    setScale(prev => {
+      const newScale = prev / 1.25;
+      return Math.max(newScale, 0.25);
+    });
+  }, []);
+
+  const resetZoom = useCallback(() => setScale(1.0), []);
+  
+  const fitToWidth = useCallback(() => {
+    // This would ideally calculate based on container width, for now use a reasonable default
+    setScale(1.2);
+  }, []);
+
+  // Keyboard navigation support
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!pdfDocument) return;
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+        case 'PageUp':
+          event.preventDefault();
+          prevPage();
+          break;
+        case 'ArrowRight':
+        case 'PageDown':
+        case ' ':
+          event.preventDefault();
+          nextPage();
+          break;
+        case 'Home':
+          event.preventDefault();
+          goToPage(1);
+          break;
+        case 'End':
+          event.preventDefault();
+          goToPage(totalPages);
+          break;
+        case '+':
+        case '=':
+          event.preventDefault();
+          zoomIn();
+          break;
+        case '-':
+          event.preventDefault();
+          zoomOut();
+          break;
+        case '0':
+          if (event.ctrlKey || event.metaKey) {
+            event.preventDefault();
+            resetZoom();
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pdfDocument, totalPages, zoomIn, zoomOut, resetZoom]);
 
   return (
     <div className="flex flex-col h-full bg-gray-800">

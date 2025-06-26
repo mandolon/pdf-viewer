@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* PDF.js Text Layer Styles */
+/* PDF.js Text Layer Styles - Based on Mozilla PDF.js */
 .textLayer {
   position: absolute;
   left: 0;
@@ -10,8 +10,10 @@
   right: 0;
   bottom: 0;
   overflow: hidden;
-  opacity: 0.2;
+  opacity: 1;
   line-height: 1.0;
+  text-align: initial;
+  pointer-events: auto;
 }
 
 .textLayer > div {
@@ -20,21 +22,46 @@
   white-space: pre;
   cursor: text;
   transform-origin: 0% 0%;
+  user-select: text;
+  pointer-events: auto;
+  line-height: 1;
+  font-feature-settings: 'liga' 0;
+  text-rendering: optimizeSpeed;
 }
 
 .textLayer > div::selection {
-  background: rgba(0, 0, 255, 0.3);
+  background: #0066CC;
+  background: rgba(0, 102, 204, 0.3);
 }
 
 .textLayer > div::-moz-selection {
-  background: rgba(0, 0, 255, 0.3);
+  background: #0066CC;
+  background: rgba(0, 102, 204, 0.3);
 }
 
-/* Improve canvas rendering */
+/* Improve canvas rendering quality */
 canvas {
+  display: block;
+  background: white;
+  /* Use browser's built-in optimization for crisp rendering */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: -moz-crisp-edges;
   image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Performance optimizations for scrolling */
+.pdf-container {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Better text rendering for different browsers */
+.textLayer > div {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
