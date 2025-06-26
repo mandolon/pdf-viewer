@@ -5,8 +5,8 @@ import { Sidebar } from "./Sidebar";
 import * as pdfjsLib from "pdfjs-dist";
 import { toast } from "sonner";
 
-// Configure PDF.js worker to use local file from pdfjs-dist package
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker to use local file
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 export interface PDFDocument {
   numPages: number;
