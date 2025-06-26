@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Toolbar } from "./Toolbar";
 import { DocumentCanvas } from "./DocumentCanvas";
@@ -6,8 +5,11 @@ import { Sidebar } from "./Sidebar";
 import * as pdfjsLib from "pdfjs-dist";
 import { toast } from "sonner";
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Configure PDF.js worker to use local file
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url,
+).toString();
 
 export interface PDFDocument {
   numPages: number;
