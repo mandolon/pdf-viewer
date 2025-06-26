@@ -2,6 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/* PDF.js Text Layer Styles */
+.textLayer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  opacity: 0.2;
+  line-height: 1.0;
+}
+
+.textLayer > div {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+}
+
+.textLayer > div::selection {
+  background: rgba(0, 0, 255, 0.3);
+}
+
+.textLayer > div::-moz-selection {
+  background: rgba(0, 0, 255, 0.3);
+}
+
+/* Improve canvas rendering */
+canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. */
 
 @layer base {
